@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thực phẩm chức năng</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-1: #f8fbff;
+            --bg-2: #eef5ff;
+            --brand: #0d6efd;
+            --text-main: #1f2937;
+        }
+
+        body {
+            font-family: "Be Vietnam Pro", sans-serif;
+            background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #0d6efd, #3b82f6);
+            color: #fff;
+            border-radius: 16px;
+            padding: 1.1rem 1.25rem;
+            box-shadow: 0 10px 25px rgba(13, 110, 253, 0.15);
+        }
+
+        .product-card {
+            border: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        .product-img {
+            height: 230px;
+            object-fit: cover;
+            background: #fff;
+        }
+
+        .product-desc {
+            min-height: 50px;
+            color: #4b5563;
+        }
+
+        .stock-badge {
+            background: #eef2ff;
+            color: #374151;
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .cart-btn {
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+        }
+
+        .back-btn {
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container py-4 py-md-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a th:href="@{/}" class="btn btn-outline-secondary">
+            ← Quay lại
+        </a>
+
+        <a th:href="@{/cart}" class="btn btn-success position-relative cart-btn">
+            🛒 Xem giỏ hàng
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  th:text="${cartCount ?: 0}">0</span>
+        </a>
+    </div>
+
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0">🛒 Thực phẩm chức năng</h2>
+        <small class="opacity-75">Sản phẩm chăm sóc sức khỏe</small>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-sm-6 col-lg-4" th:each="p : ${products}">
+            <div class="card product-card">
+                <img th:src="@{'/images/products/' + ${p.imageUrl}}"
+                     class="card-img-top product-img"
+                     alt="Ảnh sản phẩm">
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title fw-semibold mb-2" th:text="${p.name}"></h5>
+
+                    <p class="product-desc mb-2" th:text="${p.description}"></p>
+
+                    <h6 class="text-danger fw-bold mb-2"
+                        th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></h6>
+
+                    <p class="mb-3">
+                        <span class="stock-badge" th:text="'Còn lại: ' + ${p.stock}"></span>
+                    </p>
+
+                    <form th:action="@{/cart/add/{id}(id=${p.id})}" method="post" class="mt-auto">
+                        <button class="btn btn-primary w-100">🛒 Thêm vào giỏ</button>
+                    </form>
+
+                    <div sec:authorize="hasRole('ADMIN')" class="mt-2">
+                        <a th:href="@{'/admin/products/edit/' + ${p.id}}"
+                           class="btn btn-warning btn-sm w-100 mb-1">Sửa</a>
+
+                        <a th:href="@{'/admin/products/delete/' + ${p.id}}"
+                           class="btn btn-danger btn-sm w-100"
+                           onclick="return confirm('Xóa sản phẩm này?')">🗑 Xóa</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

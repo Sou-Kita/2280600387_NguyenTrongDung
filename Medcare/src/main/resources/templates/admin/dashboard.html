@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4 mb-5">
+    <div class="mb-3">
+        <a th:href="@{/}" class="btn btn-outline-primary">← Quay về trang chủ</a>
+    </div>
+
+    <h2 class="mb-4">Thong ke he thong</h2>
+
+    <div class="row g-3 text-center mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Tong doanh thu</h6>
+                    <h4 class="text-danger mb-0" th:text="${#numbers.formatDecimal(totalRevenue != null ? totalRevenue : 0,0,'COMMA',0,'POINT')} + ' đ'">0 đ</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Doanh thu hom nay</h6>
+                    <h4 class="text-success mb-0" th:text="${#numbers.formatDecimal(todayRevenue != null ? todayRevenue : 0,0,'COMMA',0,'POINT')} + ' đ'">0 đ</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Tong don hang</h6>
+                    <h4 class="mb-0" th:text="${totalOrders != null ? totalOrders : 0}">0</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Tong nguoi dung</h6>
+                    <h4 class="mb-0" th:text="${totalUsers != null ? totalUsers : 0}">0</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-3">Danh sach don hang</h5>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Khach hang</th>
+                        <th>Ngay dat</th>
+                        <th>Tong tien</th>
+                        <th>Trang thai</th>
+                        <th>Hanh dong</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.id}">1</td>
+                        <td th:text="${order.user != null ? order.user.username : 'N/A'}">N/A</td>
+                        <td th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                        <td class="text-danger fw-bold" th:text="${#numbers.formatDecimal(order.total != null ? order.total : 0,0,'COMMA',0,'POINT')} + ' đ'">0 đ</td>
+                        <td>
+                            <span th:if="${order.status == T(com.example.medcare.model.Order.OrderStatus).PENDING}"
+                                  class="badge bg-secondary">
+                                    Cho xu ly
+                            </span>
+                            <span th:if="${order.status == T(com.example.medcare.model.Order.OrderStatus).SHIPPING}"
+                                  class="badge bg-primary">
+                                    Dang giao
+                            </span>
+                            <span th:if="${order.status == T(com.example.medcare.model.Order.OrderStatus).DELIVERED}"
+                                  class="badge bg-success">
+                                    Da giao
+                            </span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/order/{id}(id=${order.id})}" class="btn btn-sm btn-primary">Xem</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${orders == null or #lists.isEmpty(orders)}">
+                        <td colspan="6" class="text-center text-muted">Chua co don hang nao</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

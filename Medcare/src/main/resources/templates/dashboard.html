@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<button onclick="history.back()"
+        class="btn btn-secondary mb-3">
+    ← Quay lại
+</button>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - MedCare</title>
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Tổng số lần đo</h6>
+                <h3 class="fw-bold text-primary"
+                    th:text="${totalRecords}">0</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>BMI mới nhất</h6>
+                <h3 class="fw-bold text-success"
+                    th:text="${#numbers.formatDecimal(latestBMI,1,2)}">0</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Cân nặng mới nhất</h6>
+                <h3 class="fw-bold text-warning"
+                    th:text="${latestWeight} + ' kg'">0</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Trạng thái</h6>
+                <h3 class="fw-bold text-danger"
+                    th:text="${latestStatus}">--</h3>
+            </div>
+        </div>
+
+    </div>
+    <div class="card shadow p-4 mb-4 border-start border-4 border-primary">
+        <h5>Phân tích AI</h5>
+        <p class="mb-0 fw-semibold" th:text="${aiAdvice}">
+            Đang phân tích...
+        </p>
+    </div>
+    <div class="card shadow p-4 mb-4 border-start border-4 border-success">
+        <h5>🥗 Gợi ý chế độ ăn</h5>
+        <pre class="mb-0 fw-semibold"
+             th:text="${dietAdvice}">
+    </pre>
+    </div>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">MedCare Dashboard</h2>
+
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn-danger">Logout</button>
+        </form>
+        <button class="btn btn-dark me-2" onclick="toggleDarkMode()">
+            Dark Mode
+        </button>
+    </div>
+
+    <!-- FORM THÊM RECORD -->
+    <div class="card shadow p-4 mb-4">
+        <h5 class="mb-3">Thêm chỉ số sức khỏe</h5>
+
+        <form th:action="@{/save}" method="post">
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="number" step="0.1"
+                           class="form-control"
+                           name="height"
+                           placeholder="Chiều cao (cm)" required>
+                </div>
+
+                <div class="col-md-3">
+                    <input type="number" step="0.1"
+                           class="form-control"
+                           name="weight"
+                           placeholder="Cân nặng (kg)" required>
+                </div>
+
+                <div class="col-md-3">
+                    <input type="number" step="1"
+                           class="form-control"
+                           name="heartRate"
+                           placeholder="Nhịp tim (bpm)" required>
+                </div>
+
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100">
+                        Lưu
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- BẢNG DỮ LIỆU -->
+    <div class="card shadow p-4 mb-4">
+        <h5 class="mb-3">Lịch sử đo</h5>
+
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>Ngày</th>
+                <th>Chiều cao</th>
+                <th>Cân nặng</th>
+                <th>Nhịp tim</th>
+                <th>BMI</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="r : ${records}">
+                <td th:text="${r.date}"></td>
+                <td th:text="${r.height}"></td>
+                <td th:text="${r.weight}"></td>
+                <td th:text="${r.heartRate}"></td>
+                <td th:text="${#numbers.formatDecimal(r.bmi,1,2)}"></td>
+
+                <td>
+                    <span class="badge"
+                          th:text="${r.status}"
+                          th:classappend="${r.status.contains('Bình') ? ' bg-success' : (r.status.contains('Thừa') ? ' bg-warning' : (r.status.contains('Gầy') ? ' bg-info' : (r.status.contains('Béo') ? ' bg-danger' : ' bg-secondary')))}">
+                    </span>
+                </td>
+
+                <td>
+                    <a th:href="@{/edit/{id}(id=${r.id})}"
+                       class="btn btn-warning btn-sm">Sửa</a>
+
+                    <a th:href="@{/delete/{id}(id=${r.id})}"
+                       class="btn btn-danger btn-sm">
+                        Xóa
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- BIỂU ĐỒ BMI -->
+    <div class="card shadow p-4">
+        <h5 class="mb-3">Biểu đồ BMI theo thời gian</h5>
+        <canvas id="bmiChart"></canvas>
+    </div>
+    <div class="card shadow p-4 mt-4">
+        <h5 class="mb-3">Biểu đồ Cân nặng theo thời gian</h5>
+        <canvas id="weightChart"></canvas>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    let labels = /*[[${records.![date]}]]*/ [];
+    let bmiData = /*[[${records.![bmi]}]]*/ [];
+
+    const ctx = document.getElementById('bmiChart').getContext('2d');
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(13,110,253,0.5)');
+    gradient.addColorStop(1, 'rgba(13,110,253,0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'BMI',
+                data: bmiData,
+                borderColor: '#0d6efd',
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+<script th:inline="javascript">
+    let weightData = /*[[${records.![weight]}]]*/ [];
+
+    const ctxWeight = document.getElementById('weightChart').getContext('2d');
+
+    const weightGradient = ctxWeight.createLinearGradient(0, 0, 0, 400);
+    weightGradient.addColorStop(0, 'rgba(25,135,84,0.5)');
+    weightGradient.addColorStop(1, 'rgba(25,135,84,0)');
+
+    new Chart(ctxWeight, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Cân nặng (kg)',
+                data: weightData,
+                borderColor: '#198754',
+                backgroundColor: weightGradient,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5
+            }]
+        }
+    });
+</script>
+<script>
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = (progress * (end - start) + start).toFixed(1);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const bmiElement = document.querySelector(".text-success");
+        if (bmiElement && !isNaN(bmiElement.innerText)) {
+            animateValue(bmiElement, 0, parseFloat(bmiElement.innerText), 800);
+        }
+    });
+</script>
+<script>
+    function toggleDarkMode() {
+        document.body.classList.toggle("bg-dark");
+        document.body.classList.toggle("text-light");
+    }
+</script>
+</body>
+</html>

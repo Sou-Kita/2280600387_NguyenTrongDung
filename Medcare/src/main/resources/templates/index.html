@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+
+    <meta charset="UTF-8">
+    <title>MedCare - Chăm sóc sức khỏe toàn diện</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        .hero {
+            background: linear-gradient(to right, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 80px 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold" th:href="@{/}">
+            🏥 MedCare
+        </a>
+
+        <div class="d-flex align-items-center">
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin/dashboard}" class="btn btn-danger me-2">
+                    📊 Đơn hàng
+                </a>
+            </div>
+            <a class="btn btn-light me-2" th:href="@{/articles}">
+                📚 Bài viết
+            </a>
+
+            <a class="btn btn-light me-2" th:href="@{/products}">
+                🛒 Thực phẩm chức năng
+            </a>
+
+            <a class="btn btn-warning me-3" th:href="@{/dashboard}">
+                📊 Chăm sóc sức khỏe
+            </a>
+
+            <!-- Giỏ hàng -->
+            <a th:href="@{/cart}"
+               class="btn btn-success position-relative me-3">
+                🛒
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                      th:text="${cartCount ?: 0}">
+                </span>
+            </a>
+
+            <!-- Nếu chưa đăng nhập -->
+            <div th:if="${#authorization.expression('isAnonymous()')}">
+                <a th:href="@{/login}" class="btn btn-light">
+                    🔐 Đăng nhập
+                </a>
+            </div>
+
+            <!-- Nếu đã đăng nhập -->
+            <div th:if="${#authorization.expression('isAuthenticated()')}"
+                 class="d-flex align-items-center">
+
+                <span class="text-white me-2">
+                    👋 <span th:text="${#authentication.name}"></span>
+                </span>
+
+                <form th:action="@{/logout}" method="post">
+                    <button class="btn btn-danger btn-sm">
+                        🚪 Logout
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero text-center">
+    <div class="container">
+        <h1 class="fw-bold display-5">
+            Chăm sóc sức khỏe chủ động mỗi ngày
+        </h1>
+        <p class="lead mt-3">
+            Theo dõi BMI • Phân tích sức khỏe • Tư vấn dinh dưỡng • Mua thực phẩm chức năng
+        </p>
+
+        <a th:href="@{/dashboard}"
+           class="btn btn-light btn-lg mt-3 shadow">
+            🚀 Bắt đầu theo dõi ngay
+        </a>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<div class="container mt-5">
+    <div class="row text-center g-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm p-4 h-100">
+                <h4>📊 Theo dõi sức khỏe</h4>
+                <p>Quản lý BMI, cân nặng, nhịp tim và phân tích AI.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm p-4 h-100">
+                <h4>🥗 Tư vấn dinh dưỡng</h4>
+                <p>Gợi ý chế độ ăn phù hợp theo tình trạng cơ thể.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm p-4 h-100">
+                <h4>🛒 Thực phẩm chức năng</h4>
+                <p>Sản phẩm hỗ trợ tăng cường sức khỏe chất lượng cao.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-dark text-light text-center p-4 mt-5">
+    <div class="container">
+        © 2026 MedCare - Health Platform <br>
+        Phát triển bởi MedCare Team
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
