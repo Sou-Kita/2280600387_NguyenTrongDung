@@ -29,7 +29,7 @@
                     <th>Tác giả</th>
                     <th>Ngày xuất bản</th>
                     <th>Giá</th>
-                    <th>Hành động</th>
+                    <th>Thể loại</th>
                 </tr>
                 </thead>
 
@@ -40,6 +40,14 @@
                     <td th:text="${book.author}"></td>
                     <td th:text="${book.publishedDate}"></td>
                     <td th:text="${book.price} + ' VND'"></td>
+                    <td>
+    <span th:if="${book.category != null}"
+          th:text="${book.category.name}"></span>
+
+                        <span th:if="${book.category == null}">
+        Chưa có
+    </span>
+                    </td>
                     <td>
                         <a th:href="@{/books/edit/{id}(id=${book.id})}"
                            class="btn btn-warning btn-sm">✏ Sửa</a>

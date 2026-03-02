@@ -2,7 +2,6 @@ package com.example.buoi5.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -10,20 +9,26 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
-
     private String author;
-
     private Double price;
-
     private LocalDate publishedDate;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    public Book(String title, String author, Double price, LocalDate publishedDate, Category category) {
+        this.title = title;
+        this.author = author;
+        this.price = price;
+        this.publishedDate = publishedDate;
+        this.category = category;
+    }
 }

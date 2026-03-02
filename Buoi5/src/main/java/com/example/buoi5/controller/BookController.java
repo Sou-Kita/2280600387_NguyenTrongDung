@@ -1,6 +1,6 @@
 package com.example.buoi5.controller;
-
-
+import com.example.buoi5.repository.CategoryRepository;
+import com.example.buoi5.model.Category;
 import com.example.buoi5.model.Book;
 import com.example.buoi5.service.BookService;
 import org.springframework.stereotype.Controller;
@@ -11,9 +11,10 @@ import org.springframework.ui.Model;
 public class BookController {
 
     private final BookService service;
-
-    public BookController(BookService service) {
+    private final CategoryRepository categoryRepo;
+    public BookController(BookService service, CategoryRepository categoryRepo) {
         this.service = service;
+        this.categoryRepo = categoryRepo;
     }
 
     @GetMapping
@@ -25,11 +26,20 @@ public class BookController {
     @GetMapping("/create")
     public String createForm(Model model) {
         model.addAttribute("book", new Book());
+        model.addAttribute("categories", categoryRepo.findAll());
         return "book-form";
     }
 
     @PostMapping("/save")
     public String save(@ModelAttribute Book book) {
+
+        if (book.getCategory() != null && book.getCategory().getId() != null) {
+            Category category = categoryRepo
+                    .findById(book.getCategory().getId())
+                    .orElse(null);
+            book.setCategory(category);
+        }
+
         service.save(book);
         return "redirect:/books";
     }
@@ -37,6 +47,7 @@ public class BookController {
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
         model.addAttribute("book", service.getById(id));
+        model.addAttribute("categories", categoryRepo.findAll());
         return "book-form";
     }
 

@@ -28,7 +28,13 @@
                     <label class="form-label">Tác giả</label>
                     <input type="text" th:field="*{author}" class="form-control" required>
                 </div>
-
+                <select th:field="*{category.id}">
+                    <option value="">-- Chọn thể loại --</option>
+                    <option th:each="c : ${categories}"
+                            th:value="${c.id}"
+                            th:text="${c.name}">
+                    </option>
+                </select>
                 <div class="mb-3">
                     <label class="form-label">Ngày xuất bản</label>
                     <input type="date" th:field="*{publishedDate}" class="form-control" required>
