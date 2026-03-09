@@ -41,12 +41,12 @@
                     <td th:text="${book.publishedDate}"></td>
                     <td th:text="${book.price} + ' VND'"></td>
                     <td>
-    <span th:if="${book.category != null}"
-          th:text="${book.category.name}"></span>
+                        <span th:if="${book.category != null}"
+                                th:text="${book.category.name}"></span>
 
                         <span th:if="${book.category == null}">
-        Chưa có
-    </span>
+                                Chưa có
+                        </span>
                     </td>
                     <td>
                         <a th:href="@{/books/edit/{id}(id=${book.id})}"
