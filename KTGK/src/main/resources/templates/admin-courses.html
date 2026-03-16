@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Courses</title>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+
+</head>
+
+<body>
+
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container mt-4">
+
+    <h2>Manage Courses</h2>
+
+    <a class="btn btn-primary mb-3"
+       href="/admin/courses/create">
+
+        Add Course
+
+    </a>
+
+    <table class="table table-bordered">
+
+        <thead>
+
+        <tr>
+
+            <th>ID</th>
+            <th>Name</th>
+            <th>Credits</th>
+            <th>Lecturer</th>
+            <th>Action</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr th:each="c : ${courses}">
+
+            <td th:text="${c.id}"></td>
+
+            <td th:text="${c.name}"></td>
+
+            <td th:text="${c.credits}"></td>
+
+            <td th:text="${c.lecturer}"></td>
+
+            <td>
+
+                <a class="btn btn-warning btn-sm"
+                   th:href="@{/admin/courses/edit/{id}(id=${c.id})}">
+
+                    Edit
+
+                </a>
+
+                <a class="btn btn-danger btn-sm"
+                   th:href="@{/admin/courses/delete/{id}(id=${c.id})}">
+
+                    Delete
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<nav th:fragment="navbar"
+     class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+    <div class="container">
+
+        <a class="navbar-brand" href="/home">
+            🎓 Course Registration
+        </a>
+
+        <button class="navbar-toggler"
+                data-bs-toggle="collapse"
+                data-bs-target="#nav">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+        <div class="collapse navbar-collapse" id="nav">
+
+            <ul class="navbar-nav me-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/home">Home</a>
+                </li>
+
+                <!-- STUDENT -->
+
+                <li class="nav-item"
+                    sec:authorize="hasRole('STUDENT')">
+
+                    <a class="nav-link"
+                       href="/enroll/mycourses">
+
+                        📚 My Courses
+
+                    </a>
+
+                </li>
+
+                <!-- ADMIN -->
+
+                <li class="nav-item"
+                    sec:authorize="hasRole('ADMIN')">
+
+                    <a class="nav-link"
+                       href="/admin/courses">
+
+                        ⚙ Manage Courses
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+            <form class="d-flex me-3"
+                  action="/home">
+
+                <input class="form-control me-2"
+                       name="keyword"
+                       placeholder="Search course"
+                       th:value="${param.keyword}">
+
+                <button class="btn btn-outline-light">
+                    Search
+                </button>
+
+            </form>
+
+            <div class="d-flex align-items-center">
+
+<span class="text-white me-3"
+      sec:authorize="isAuthenticated()">
+
+👤 <span sec:authentication="name"></span>
+
+</span>
+
+                <a class="btn btn-warning me-2"
+                   sec:authorize="!isAuthenticated()"
+                   href="/login">
+
+                    Login
+
+                </a>
+
+                <form th:action="@{/logout}"
+                      method="post"
+                      sec:authorize="isAuthenticated()">
+
+                    <button class="btn btn-danger">
+
+                        Logout
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+</html>
