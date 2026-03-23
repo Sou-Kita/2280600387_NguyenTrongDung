@@ -1,69 +1,143 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Quản Lý Sách</title>
+    <title>Book List</title>
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">📚 Quản Lý Sách</h4>
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">📚 Book Management</h2>
+        <div>
+            <a href="/cart" class="btn btn-warning">🛒 Cart</a>
+            <a href="/books/create" class="btn btn-success">➕ Add Book</a>
+        </div>
+    </div>
+
+    <!-- SEARCH + FILTER + SORT -->
+    <form method="get" action="/books" class="row g-2 mb-3">
+
+        <!-- SEARCH -->
+        <div class="col-md-4">
+            <input type="text" name="keyword" class="form-control"
+                   placeholder="🔍 Search..."
+                   th:value="${keyword}">
         </div>
 
+        <!-- CATEGORY -->
+        <div class="col-md-3">
+            <select name="categoryId" class="form-select">
+                <option value="">All Categories</option>
+                <option th:each="c : ${categories}"
+                        th:value="${c.id}"
+                        th:selected="${c.id == categoryId}"
+                        th:text="${c.name}">
+                </option>
+            </select>
+        </div>
+
+        <!-- SORT -->
+        <div class="col-md-3">
+            <select name="sort" class="form-select">
+                <option value="">Sort</option>
+                <option value="asc" th:selected="${sort == 'asc'}">Price ↑</option>
+                <option value="desc" th:selected="${sort == 'desc'}">Price ↓</option>
+            </select>
+        </div>
+
+        <!-- BUTTON -->
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Apply</button>
+        </div>
+    </form>
+
+    <!-- TABLE -->
+    <div class="card shadow">
         <div class="card-body">
 
-            <a th:href="@{/books/create}" class="btn btn-success mb-3">
-                ➕ Thêm Sách
-            </a>
-
-            <table class="table table-bordered table-hover text-center">
-                <thead class="table-dark">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark text-center">
                 <tr>
-                    <th>ID</th>
-                    <th>Tiêu đề</th>
-                    <th>Tác giả</th>
-                    <th>Ngày xuất bản</th>
-                    <th>Giá</th>
-                    <th>Thể loại</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Price</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th width="220px">Action</th>
                 </tr>
                 </thead>
 
                 <tbody>
-                <tr th:each="book : ${books}">
-                    <td th:text="${book.id}"></td>
-                    <td th:text="${book.title}"></td>
-                    <td th:text="${book.author}"></td>
-                    <td th:text="${book.publishedDate}"></td>
-                    <td th:text="${book.price} + ' VND'"></td>
-                    <td>
-                        <span th:if="${book.category != null}"
-                                th:text="${book.category.name}"></span>
 
-                        <span th:if="${book.category == null}">
-                                Chưa có
-                        </span>
-                    </td>
-                    <td>
-                        <a th:href="@{/books/edit/{id}(id=${book.id})}"
-                           class="btn btn-warning btn-sm">✏ Sửa</a>
-
-                        <a th:href="@{/books/delete/{id}(id=${book.id})}"
-                           class="btn btn-danger btn-sm"
-                           onclick="return confirm('Bạn có chắc muốn xóa?')">
-                            🗑 Xóa
-                        </a>
+                <!-- EMPTY -->
+                <tr th:if="${#lists.isEmpty(books)}">
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No books found
                     </td>
                 </tr>
-                </tbody>
 
+                <!-- DATA -->
+                <tr th:each="b : ${books}">
+                    <td class="fw-semibold" th:text="${b.title}"></td>
+                    <td th:text="${b.author}"></td>
+
+                    <!-- format tiền -->
+                    <td th:text="${#numbers.formatDecimal(b.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+
+                    <td th:text="${b.publishedDate}"></td>
+
+                    <td>
+                        <span class="badge bg-info"
+                              th:text="${b.category != null ? b.category.name : 'No Category'}">
+                        </span>
+                    </td>
+
+                    <td class="text-center">
+                        <a th:href="@{/books/edit/{id}(id=${b.id})}"
+                           class="btn btn-primary btn-sm">Edit</a>
+
+                        <a th:href="@{/books/delete/{id}(id=${b.id})}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this book?')">Delete</a>
+
+                        <a th:href="@{/cart/add/{id}(id=${b.id})}"
+                           class="btn btn-warning btn-sm">Cart</a>
+                    </td>
+                </tr>
+
+                </tbody>
             </table>
+
         </div>
     </div>
+
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+
+        <a th:if="${currentPage > 0}"
+           th:href="@{/books(page=${currentPage - 1}, keyword=${keyword}, categoryId=${categoryId}, sort=${sort})}"
+           class="btn btn-secondary">
+            ⬅ Prev
+        </a>
+
+        <span class="fw-bold">
+            Page [[${currentPage + 1}]] / [[${totalPages}]]
+        </span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{/books(page=${currentPage + 1}, keyword=${keyword}, categoryId=${categoryId}, sort=${sort})}"
+           class="btn btn-secondary">
+            Next ➡
+        </a>
+
+    </div>
+
 </div>
 
 </body>
